@@ -139,7 +139,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-t
   <span class="htag">49 SKUs · Mar 2026</span>
 </header>
 <main>
-
+ 
 <!-- ESTRUTURA DE CUSTOS -->
 <div class="slabel">estrutura de custos sobre o preço de venda</div>
 <div class="cost-bar">
@@ -180,7 +180,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-t
     <span class="cost-seg-pill bg">média pond.</span>
   </div>
 </div>
-
+ 
 <!-- KPIs PRINCIPAIS -->
 <div class="slabel">resumo geral — valores reais após deduções</div>
 <div class="kpi-grid-5">
@@ -190,14 +190,14 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-t
   <div class="kpi"><div class="kpi-label">Ganho líquido real</div><div class="kpi-val accent" id="kpiLiquido">—</div><div class="kpi-sub">após todas as deduções</div></div>
   <div class="kpi"><div class="kpi-label">Margem líquida média</div><div class="kpi-val accent" id="kpiMargemLiq">—</div><div class="kpi-sub">ponderada por volume</div></div>
 </div>
-
+ 
 <!-- CASCATA DE MARGEM -->
 <div class="slabel">cascata de rentabilidade — média do portfólio</div>
 <div class="card full" id="waterfallCard">
   <div class="card-t">Do preço de venda ao lucro real (R$/kg médio ponderado)</div>
   <div class="waterfall" id="waterfallEl"></div>
 </div>
-
+ 
 <!-- FORNECEDOR CHARTS -->
 <div class="slabel">visão por fornecedor</div>
 <div class="row2">
@@ -216,7 +216,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-t
     </div>
   </div>
 </div>
-
+ 
 <!-- CALIBRE CHARTS -->
 <div class="slabel">análise por calibre</div>
 <div class="row2">
@@ -234,7 +234,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-t
     </div>
   </div>
 </div>
-
+ 
 <!-- TABELA -->
 <div class="slabel">top produtos — visão com custos reais</div>
 <div class="card full">
@@ -259,7 +259,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-t
     </table></div>
   </div>
 </div>
-
+ 
 <!-- COMPARAÇÃO DE PREÇOS -->
 <div class="slabel">comparação de preços — mesmo calibre + qualidade + tipo</div>
 <div class="alert-box">
@@ -267,7 +267,7 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-t
   <span><strong>10 grupos</strong> com mesmo padrão têm preços diferentes. Verde = mais barato · Vermelho = mais caro do grupo. Margem exibida já é <strong>líquida</strong> (após impostos 7% + comissão 2,3%).</span>
 </div>
 <div id="cmp-container"></div>
-
+ 
 <!-- INSIGHTS -->
 <div class="slabel">insights estratégicos — visão líquida real</div>
 <div class="ig">
@@ -278,15 +278,15 @@ footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-t
   <div class="ins" style="border-left:3px solid #534AB7"><div class="ins-t">Deduções fixas impactam R$ 89k</div><div class="ins-b">Impostos (7%) + comissão (2,3%) somam 9,3% da receita bruta. Sobre o estoque atual, isso representa ~R$ 89k que saem do ganho bruto de R$ 958k antes de qualquer resultado.</div></div>
   <div class="ins" style="border-left:3px solid #A32D2D"><div class="ins-t">6 SKUs com margem líquida crítica</div><div class="ins-b">Dente Yguazu (-4,6%), Sol Valle N5 2ª (-0,4%), Rio Claro N7 Palha Branco (+1,5%) e Rio Claro N7 Branco Limpo (+8,9%) estão abaixo de 10% líquido — zona de risco real.</div></div>
 </div>
-
+ 
 </main>
 <footer>Dashboard de Alho Argentino · Margem líquida = Preço − Custo produto − Impostos (7%) − Comissão (2,3%) · Março 2026</footer>
-
+ 
 <script>
 const IMPOSTOS = 0.07;
 const COMISSAO = 0.023;
 const DEDUCOES = IMPOSTOS + COMISSAO; // 9.3%
-
+ 
 const DATA=[
   {f:"YGUAZU",sub:"N8 (61-65)",cal:"N8",qual:"1ª",tipo:"N/A",p:12.5,c:8.807,kg:37730,cx:3773},
   {f:"TRES MARIAS",sub:"N8 (61-65) - 1ª - Limpo",cal:"N8",qual:"1ª",tipo:"Limpo",p:12.0,c:7.699,kg:36760,cx:3676},
@@ -337,7 +337,7 @@ const DATA=[
   {f:"SOL DEL VALLE",sub:"N9 - 2ª Limpo (BRANCO)",cal:"N9",qual:"2ª",tipo:"Limpo",p:10.5,c:6.671,kg:30,cx:3},
   {f:"RIO CLARO",sub:"N8 - 1ª - Limpo",cal:"N8",qual:"1ª",tipo:"Limpo",p:13.5,c:8.554,kg:20,cx:2},
 ];
-
+ 
 // Calcular campos derivados
 DATA.forEach(d => {
   d.impostos   = d.p * IMPOSTOS;          // R$/kg
@@ -348,7 +348,7 @@ DATA.forEach(d => {
   d.ganhoLiq   = d.ganhoLiqKg * d.kg;
   d.receita    = d.p * d.kg;
 });
-
+ 
 // ── KPIs ──────────────────────────────────────────────────────────────────────
 const totalReceita   = DATA.reduce((s,d)=>s+d.receita,0);
 const totalImpostos  = DATA.reduce((s,d)=>s+d.impostos*d.kg,0);
@@ -356,20 +356,20 @@ const totalComissao  = DATA.reduce((s,d)=>s+d.comissao*d.kg,0);
 const totalGanhoLiq  = DATA.reduce((s,d)=>s+d.ganhoLiq,0);
 const totalKg        = DATA.reduce((s,d)=>s+d.kg,0);
 const margemLiqMedia = totalGanhoLiq / totalReceita;
-
+ 
 document.getElementById('kpiImpostos').textContent  = '−R$ '+Math.round(totalImpostos/1000)+'k';
 document.getElementById('kpiComissao').textContent  = '−R$ '+Math.round(totalComissao/1000)+'k';
 document.getElementById('kpiLiquido').textContent   = 'R$ '+Math.round(totalGanhoLiq/1000)+'k';
 document.getElementById('kpiMargemLiq').textContent = (margemLiqMedia*100).toFixed(1)+'%';
 document.getElementById('margemLiquidaMedia').textContent = (margemLiqMedia*100).toFixed(1)+'%';
-
+ 
 // ── WATERFALL ────────────────────────────────────────────────────────────────
 const pMed     = totalReceita / totalKg;
 const cMed     = DATA.reduce((s,d)=>s+d.c*d.kg,0) / totalKg;
 const impMed   = pMed * IMPOSTOS;
 const comMed   = pMed * COMISSAO;
 const liqMed   = pMed - cMed - impMed - comMed;
-
+ 
 const wfData = [
   {label:'Preço de venda',    val: pMed,   pct: 100,                        color:'#378ADD', cumul: pMed},
   {label:'(−) Custo produto', val:-cMed,   pct:-(cMed/pMed*100),           color:'#D85A30', cumul: pMed-cMed},
@@ -377,7 +377,7 @@ const wfData = [
   {label:'(−) Comissão 2,3%',val:-comMed, pct:-(COMISSAO*100),            color:'#BA7517', cumul: pMed-cMed-impMed-comMed},
   {label:'= Margem líquida',  val: liqMed, pct: liqMed/pMed*100,           color:'#1D9E75', cumul: liqMed},
 ];
-
+ 
 const wfEl = document.getElementById('waterfallEl');
 wfData.forEach(row => {
   const isResult = row.label.startsWith('=');
@@ -394,18 +394,18 @@ wfData.forEach(row => {
       <span class="wf-val" style="color:${row.val>=0?'var(--green)':'var(--red)'}">${sign}${row.pct.toFixed(1)}%</span>
     </div>`;
 });
-
+ 
 // ── HELPERS ──────────────────────────────────────────────────────────────────
 const fCores=['#378ADD','#1D9E75','#D85A30','#D4537E','#639922','#BA7517','#7F77DD','#E07B39'];
 const maxGLiq = Math.max(...DATA.map(d=>d.ganhoLiq));
-
+ 
 function bdg(m){
   const p=(m*100).toFixed(1)+'%';
   if(m>=.25) return `<span class="badge bg">${p}</span>`;
   if(m>=.10) return `<span class="badge ba">${p}</span>`;
   return `<span class="badge br">${p}</span>`;
 }
-
+ 
 function renderRow(d, showBar=true, showAlert=false){
   const bw = Math.round(d.ganhoLiq/maxGLiq*100);
   const bc = d.mLiq>=.25?'#1D9E75':d.mLiq>=.10?'#BA7517':'#D85A30';
@@ -422,11 +422,11 @@ function renderRow(d, showBar=true, showAlert=false){
     ${showBar?`<td><div class="bar-o"><div class="bar-i" style="width:${bw}%;background:${bc}"></div></div></td>`:''}
   </tr>`;
 }
-
+ 
 document.getElementById('tb-top').innerHTML=[...DATA].sort((a,b)=>b.ganhoLiq-a.ganhoLiq).slice(0,10).map(d=>renderRow(d)).join('');
 document.getElementById('tb-marg').innerHTML=[...DATA].sort((a,b)=>b.mLiq-a.mLiq).slice(0,10).map(d=>renderRow(d)).join('');
 document.getElementById('tb-alert').innerHTML=[...DATA].filter(d=>d.mLiq<.10).sort((a,b)=>a.mLiq-b.mLiq).map(d=>renderRow(d,false,true)).join('');
-
+ 
 // ── TABS ──────────────────────────────────────────────────────────────────────
 let activeTab='top';
 function showTab(n,btn){
@@ -435,19 +435,19 @@ function showTab(n,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   btn.classList.add('on'); activeTab=n;
 }
-
+ 
 // ── FORNECEDOR CHARTS ────────────────────────────────────────────────────────
 const fG={},fM={},fN={};
 DATA.forEach(d=>{fG[d.f]=(fG[d.f]||0)+d.ganhoLiq;fM[d.f]=(fM[d.f]||0)+d.mLiq;fN[d.f]=(fN[d.f]||0)+1;});
 const fK=Object.keys(fG).sort((a,b)=>fG[b]-fG[a]);
 const fC=fK.map((_,i)=>fCores[i%fCores.length]);
-
+ 
 new Chart(document.getElementById('cF'),{type:'bar',data:{labels:fK,datasets:[{data:fK.map(f=>Math.round(fG[f])),backgroundColor:fC,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' R$ '+c.raw.toLocaleString('pt-BR')}}},scales:{x:{grid:{color:'rgba(128,128,128,0.08)'},ticks:{font:{size:11},callback:v=>'R$ '+Math.round(v/1000)+'k'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
 document.getElementById('legF').innerHTML=fK.map((f,i)=>`<span><span class="ldot" style="background:${fC[i]}"></span>${f}</span>`).join('');
-
+ 
 const fMA=fK.map(f=>Math.round(fM[f]/fN[f]*1000)/10);
 new Chart(document.getElementById('cM'),{type:'bar',data:{labels:fK,datasets:[{data:fMA,backgroundColor:fMA.map(m=>m>=25?'#1D9E75':m>=10?'#BA7517':'#D85A30'),borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw.toFixed(1)+'% líq.'}}},scales:{x:{grid:{color:'rgba(128,128,128,0.08)'},ticks:{font:{size:11},callback:v=>v+'%'},max:40},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
-
+ 
 // ── CALIBRE CHARTS ────────────────────────────────────────────────────────────
 const cV={},cP={},cCT={},cLiq={},cN2={};
 DATA.forEach(d=>{
@@ -459,15 +459,15 @@ DATA.forEach(d=>{
   cN2[d.cal]=(cN2[d.cal]||0)+1;
 });
 const cK=Object.keys(cV).sort((a,b)=>parseInt(a.slice(1))-parseInt(b.slice(1)));
-
+ 
 new Chart(document.getElementById('cCal'),{type:'bar',data:{labels:cK,datasets:[{data:cK.map(c=>cV[c]),backgroundColor:'#378ADD',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString('pt-BR')+' kg'}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},autoSkip:false,maxRotation:0}},y:{grid:{color:'rgba(128,128,128,0.08)'},ticks:{font:{size:11},callback:v=>Math.round(v/1000)+'k'}}}}});
-
+ 
 new Chart(document.getElementById('cPC'),{type:'bar',data:{labels:cK,datasets:[
   {label:'Preço/kg',     data:cK.map(c=>+(cP[c]/cN2[c]).toFixed(2)),  backgroundColor:'#378ADD',borderRadius:4,borderSkipped:false},
   {label:'Custo total/kg',data:cK.map(c=>+(cCT[c]/cN2[c]).toFixed(2)),backgroundColor:'#D85A30',borderRadius:4,borderSkipped:false},
   {label:'Margem líq/kg',data:cK.map(c=>+(cLiq[c]/cN2[c]).toFixed(2)),backgroundColor:'#1D9E75',borderRadius:4,borderSkipped:false},
 ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' R$ '+c.raw.toFixed(2)+'/kg'}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},autoSkip:false,maxRotation:0}},y:{grid:{color:'rgba(128,128,128,0.08)'},ticks:{font:{size:11},callback:v=>'R$ '+v}}}}});
-
+ 
 // ── COMPARAÇÃO ────────────────────────────────────────────────────────────────
 const GROUPS=[
   {cal:'N5 (46-50)',qual:'1ª',tipo:'Limpo',items:[{f:'TRES MARIAS',sub:'N5 - 1ª Limpo',p:9.0,c:5.37,kg:9100},{f:'RIO CLARO',sub:'N5 - 1ª Limpo',p:10.5,c:6.88,kg:1620}]},
@@ -481,12 +481,12 @@ const GROUPS=[
   {cal:'N8 (61-65)',qual:'1ª',tipo:'Palha',items:[{f:'RIO CLARO',sub:'N8 - 1ª Palha',p:15.0,c:11.37,kg:2720},{f:'TERRANDES',sub:'N8 - 1ª Palha',p:16.0,c:11.12,kg:670}]},
   {cal:'N9 (66+)',qual:'1ª',tipo:'Palha',items:[{f:'SOL DEL VALLE',sub:'N9 - 1ª Palha',p:14.5,c:12.11,kg:50},{f:'IMPORFOZ',sub:'N9 - 1ª Palha',p:17.5,c:13.41,kg:8200}]},
 ];
-
+ 
 // calcular margem líquida nos grupos de comparação
 GROUPS.forEach(grp=>{grp.items.forEach(it=>{
   it.mLiq = (it.p - it.c - it.p*IMPOSTOS - it.p*COMISSAO) / it.p;
 })});
-
+ 
 const cmpEl=document.getElementById('cmp-container');
 GROUPS.forEach((grp,gi)=>{
   const maxP=Math.max(...grp.items.map(i=>i.p));
@@ -525,7 +525,7 @@ GROUPS.forEach((grp,gi)=>{
   document.getElementById('cmpb-'+gi).style.display='block';
   document.getElementById('chev-'+gi).style.transform='rotate(90deg)';
 });
-
+ 
 function toggleCmp(i){
   const b=document.getElementById('cmpb-'+i);
   const ch=document.getElementById('chev-'+i);
@@ -536,3 +536,4 @@ function toggleCmp(i){
 </script>
 </body>
 </html>
+ 
