@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Alho Argentino</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--bg2:#ffffff;--bg3:#eeede8;--bg4:#e4e2dc;
+  --text:#1a1a18;--text2:#5f5e5a;--text3:#8a8982;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.16);
+  --r:10px;--rl:14px;
+  --green:#0F6E56;--green-bg:#EAF3DE;--green-txt:#3B6D11;
+  --amber:#854F0B;--amber-bg:#FAEEDA;--amber-txt:#854F0B;
+  --red:#A32D2D;--red-bg:#FCEBEB;--red-txt:#A32D2D;
+  --blue:#185FA5;--blue-mid:#378ADD;
+  --teal-mid:#1D9E75;--coral:#D85A30;
+  --purple:#534AB7;--purple-bg:#EEEDFE;--purple-txt:#3C3489;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;--bg4:#363632;
+  --text:#e8e6df;--text2:#a8a6a0;--text3:#6e6d69;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
+  --green-bg:#0a2e1f;--green-txt:#5DCAA5;
+  --amber-bg:#2e1e05;--amber-txt:#EF9F27;
+  --red-bg:#2e0d0d;--red-txt:#F09595;
+  --purple-bg:#1a1838;--purple-txt:#AFA9EC;
+}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:var(--bg2);border-bottom:0.5px solid var(--border2);padding:16px 32px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.logo{width:38px;height:38px;background:#1D9E75;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+header h1{font-size:16px;font-weight:600}
+header p{font-size:11px;color:var(--text3);margin-top:2px}
+.htag{background:var(--green-bg);color:var(--green-txt);font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;margin-left:auto;white-space:nowrap}
+main{max-width:1160px;margin:0 auto;padding:28px 24px 56px}
+.slabel{font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin:0 0 12px}
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.kpi-grid-5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:28px}
+.kpi{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:16px 18px}
+.kpi-label{font-size:11px;color:var(--text2);margin-bottom:7px}
+.kpi-val{font-size:24px;font-weight:700;color:var(--text);line-height:1}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:5px}
+.accent{color:var(--teal-mid)}
+.kpi-warn{color:var(--amber)}
+.kpi-bad{color:var(--red)}
+/* Custo breakdown pill */
+.cost-bar{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--rl);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.cost-seg{display:flex;flex-direction:column;align-items:center;flex:1;min-width:120px;padding:10px 16px;position:relative}
+.cost-seg:not(:last-child)::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text3);z-index:1}
+.cost-seg-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.cost-seg-val{font-size:20px;font-weight:700}
+.cost-seg-pct{font-size:11px;color:var(--text2);margin-top:3px}
+.cost-seg-pill{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;margin-top:4px}
+/* layout */
+.row2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px;margin-bottom:24px}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:24px}
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--rl);padding:20px}
+.card-t{font-size:13px;font-weight:600;color:var(--text);margin-bottom:16px}
+.full{margin-bottom:24px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;font-size:11px;color:var(--text2)}
+.legend span{display:flex;align-items:center;gap:5px}
+.ldot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+/* tabs */
+.tabs{display:flex;border-bottom:0.5px solid var(--border2);margin-bottom:18px}
+.tab{font-size:12px;padding:9px 16px;cursor:pointer;color:var(--text2);border:none;border-bottom:2px solid transparent;background:none;margin-bottom:-0.5px;transition:color .15s}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--text);font-weight:600;border-bottom-color:var(--text)}
+.hidden{display:none}
+/* table */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 10px;font-size:11px;font-weight:600;color:var(--text2);border-bottom:0.5px solid var(--border2);white-space:nowrap}
+td{padding:8px 10px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+tr:hover td{background:var(--bg3)}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.bg{background:var(--green-bg);color:var(--green-txt)}
+.ba{background:var(--amber-bg);color:var(--amber-txt)}
+.br{background:var(--red-bg);color:var(--red-txt)}
+.bp{background:var(--purple-bg);color:var(--purple-txt)}
+.bar-o{background:var(--bg3);border-radius:3px;height:5px;width:80px}
+.bar-i{height:5px;border-radius:3px}
+/* insights */
+.ig{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:28px}
+.ins{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.ins-t{font-size:12px;font-weight:600;margin-bottom:5px}
+.ins-b{font-size:11px;color:var(--text2);line-height:1.55}
+/* comparison */
+.alert-box{background:var(--amber-bg);border:0.5px solid var(--amber-txt);border-radius:var(--r);padding:12px 16px;margin-bottom:18px;font-size:12px;color:var(--amber-txt);display:flex;gap:10px;align-items:flex-start;line-height:1.5}
+.cmp-group{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden}
+.cmp-header{padding:12px 16px;background:var(--bg3);border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.cmp-header:hover{background:var(--bg4)}
+.cmp-cal{font-size:13px;font-weight:600}
+.cmp-meta{font-size:11px;color:var(--text2)}
+.cmp-spread{margin-left:auto;font-size:12px;font-weight:700}
+.high{color:var(--red)}.mid{color:var(--amber)}.low{color:var(--green)}
+.chev{font-size:10px;color:var(--text3);margin-left:8px;display:inline-block;transition:transform .2s}
+.cmp-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:0.5px solid var(--border);flex-wrap:wrap}
+.cmp-row:last-child{border-bottom:none}
+.cmp-row:hover{background:var(--bg3)}
+.cmp-f{font-size:12px;font-weight:500;min-width:150px;flex-shrink:0}
+.cmp-s{font-size:11px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pbar-w{width:100px;flex-shrink:0}
+.pbar{height:8px;border-radius:4px}
+.cmp-p{font-size:13px;font-weight:700;min-width:80px;text-align:right;flex-shrink:0}
+.cmp-c{font-size:11px;color:var(--text2);min-width:80px;text-align:right;flex-shrink:0}
+.cmp-m{min-width:56px;text-align:right;flex-shrink:0}
+.cmp-kg{font-size:11px;color:var(--text3);min-width:70px;text-align:right;flex-shrink:0}
+/* margin waterfall */
+.waterfall{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.wf-row{display:flex;align-items:center;gap:10px;font-size:12px}
+.wf-label{min-width:160px;color:var(--text2);font-size:11px}
+.wf-bar-wrap{flex:1;background:var(--bg3);border-radius:3px;height:18px;position:relative;overflow:hidden}
+.wf-bar{height:18px;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;font-weight:600;white-space:nowrap;min-width:30px}
+.wf-val{min-width:60px;text-align:right;font-weight:600;font-size:11px}
+footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-top:0.5px solid var(--border)}
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .kpi-grid-5{grid-template-columns:repeat(2,1fr)}
+  .row2,.row3{grid-template-columns:1fr}
+  .ig{grid-template-columns:1fr}
+  main{padding:16px 14px 40px}
+  header{padding:14px 16px}
+  .cmp-s,.pbar-w,.cmp-c,.cmp-kg{display:none}
+  .cost-seg:not(:last-child)::after{display:none}
+}
+@media(max-width:480px){.kpi-grid,.kpi-grid-5{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🧄</div>
+  <div>
+    <h1>Dashboard — Alho Argentino</h1>
+    <p>Análise de preços, custos, impostos e margens reais · Tabela Original</p>
+  </div>
+  <span class="htag">49 SKUs · Mar 2026</span>
+</header>
+<main>
+
+<!-- ESTRUTURA DE CUSTOS -->
+<div class="slabel">estrutura de custos sobre o preço de venda</div>
+<div class="cost-bar">
+  <div class="cost-seg">
+    <div class="cost-seg-label">Preço de venda</div>
+    <div class="cost-seg-val accent">100%</div>
+    <div class="cost-seg-pct">base = PrecoSKUPrimaria</div>
+    <span class="cost-seg-pill bg">R$/kg</span>
+  </div>
+  <div class="cost-seg">
+    <div class="cost-seg-label">Custo de produto</div>
+    <div class="cost-seg-val" style="color:var(--coral)">variável</div>
+    <div class="cost-seg-pct">CustoMedio por SKU</div>
+    <span class="cost-seg-pill ba">por produto</span>
+  </div>
+  <div class="cost-seg">
+    <div class="cost-seg-label">Impostos</div>
+    <div class="cost-seg-val" style="color:var(--red)">7,0%</div>
+    <div class="cost-seg-pct">sobre preço de venda</div>
+    <span class="cost-seg-pill br">fixo</span>
+  </div>
+  <div class="cost-seg">
+    <div class="cost-seg-label">Comissão vendas</div>
+    <div class="cost-seg-val" style="color:var(--amber)">2,3%</div>
+    <div class="cost-seg-pct">sobre preço de venda</div>
+    <span class="cost-seg-pill ba">fixo</span>
+  </div>
+  <div class="cost-seg">
+    <div class="cost-seg-label">Total deduções</div>
+    <div class="cost-seg-val" style="color:var(--red)">9,3%</div>
+    <div class="cost-seg-pct">impostos + comissão</div>
+    <span class="cost-seg-pill br">fixo</span>
+  </div>
+  <div class="cost-seg" style="border-left:2px solid var(--teal-mid);padding-left:20px">
+    <div class="cost-seg-label">Margem real líquida</div>
+    <div class="cost-seg-val accent" id="margemLiquidaMedia">—</div>
+    <div class="cost-seg-pct">após produto+impostos+comissão</div>
+    <span class="cost-seg-pill bg">média pond.</span>
+  </div>
+</div>
+
+<!-- KPIs PRINCIPAIS -->
+<div class="slabel">resumo geral — valores reais após deduções</div>
+<div class="kpi-grid-5">
+  <div class="kpi"><div class="kpi-label">Ganho bruto previsto</div><div class="kpi-val accent">R$ 958k</div><div class="kpi-sub">antes de impostos e comissão</div></div>
+  <div class="kpi"><div class="kpi-label">Impostos (7%)</div><div class="kpi-val kpi-bad" id="kpiImpostos">—</div><div class="kpi-sub">sobre receita de venda</div></div>
+  <div class="kpi"><div class="kpi-label">Comissão (2,3%)</div><div class="kpi-val kpi-warn" id="kpiComissao">—</div><div class="kpi-sub">sobre receita de venda</div></div>
+  <div class="kpi"><div class="kpi-label">Ganho líquido real</div><div class="kpi-val accent" id="kpiLiquido">—</div><div class="kpi-sub">após todas as deduções</div></div>
+  <div class="kpi"><div class="kpi-label">Margem líquida média</div><div class="kpi-val accent" id="kpiMargemLiq">—</div><div class="kpi-sub">ponderada por volume</div></div>
+</div>
+
+<!-- CASCATA DE MARGEM -->
+<div class="slabel">cascata de rentabilidade — média do portfólio</div>
+<div class="card full" id="waterfallCard">
+  <div class="card-t">Do preço de venda ao lucro real (R$/kg médio ponderado)</div>
+  <div class="waterfall" id="waterfallEl"></div>
+</div>
+
+<!-- FORNECEDOR CHARTS -->
+<div class="slabel">visão por fornecedor</div>
+<div class="row2">
+  <div class="card">
+    <div class="card-t">Ganho líquido real por fornecedor (R$)</div>
+    <div style="position:relative;height:240px"><canvas id="cF"></canvas></div>
+    <div class="legend" id="legF"></div>
+  </div>
+  <div class="card">
+    <div class="card-t">Margem líquida média por fornecedor</div>
+    <div style="position:relative;height:240px"><canvas id="cM"></canvas></div>
+    <div class="legend" style="margin-top:8px;font-size:11px">
+      <span><span class="ldot" style="background:#1D9E75"></span>≥ 25% líquida</span>
+      <span><span class="ldot" style="background:#BA7517"></span>10–25%</span>
+      <span><span class="ldot" style="background:#D85A30"></span>&lt; 10%</span>
+    </div>
+  </div>
+</div>
+
+<!-- CALIBRE CHARTS -->
+<div class="slabel">análise por calibre</div>
+<div class="row2">
+  <div class="card">
+    <div class="card-t">Volume em estoque por calibre (kg)</div>
+    <div style="position:relative;height:220px"><canvas id="cCal"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-t">Preço · Custo · Margem líquida por calibre (R$/kg)</div>
+    <div style="position:relative;height:220px"><canvas id="cPC"></canvas></div>
+    <div class="legend">
+      <span><span class="ldot" style="background:#378ADD"></span>Preço/kg</span>
+      <span><span class="ldot" style="background:#D85A30"></span>Custo+deduções/kg</span>
+      <span><span class="ldot" style="background:#1D9E75"></span>Margem líq./kg</span>
+    </div>
+  </div>
+</div>
+
+<!-- TABELA -->
+<div class="slabel">top produtos — visão com custos reais</div>
+<div class="card full">
+  <div class="tabs">
+    <button class="tab on" onclick="showTab('top',this)">Top 10 por ganho líquido</button>
+    <button class="tab" onclick="showTab('marg',this)">Maior margem líquida</button>
+    <button class="tab" onclick="showTab('alert',this)">⚠ Margem líquida baixa</button>
+  </div>
+  <div id="tab-top"><div class="tw"><table>
+    <thead><tr><th>Fornecedor</th><th>Calibre/Tipo</th><th>Preço/kg</th><th>Custo prod.</th><th>Impostos 7%</th><th>Comissão 2,3%</th><th>Margem líq.</th><th>Estoque(cx)</th><th>Ganho líq.</th><th>Potencial</th></tr></thead>
+    <tbody id="tb-top"></tbody>
+  </table></div></div>
+  <div id="tab-marg" class="hidden"><div class="tw"><table>
+    <thead><tr><th>Fornecedor</th><th>Calibre/Tipo</th><th>Preço/kg</th><th>Custo prod.</th><th>Impostos 7%</th><th>Comissão 2,3%</th><th>Margem líq.</th><th>Estoque(cx)</th><th>Ganho líq.</th><th>Potencial</th></tr></thead>
+    <tbody id="tb-marg"></tbody>
+  </table></div></div>
+  <div id="tab-alert" class="hidden">
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Produtos com <strong>margem líquida abaixo de 10%</strong> após produto + impostos + comissão. Risco real de prejuízo.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Fornecedor</th><th>Calibre/Tipo</th><th>Preço/kg</th><th>Custo prod.</th><th>Impostos 7%</th><th>Comissão 2,3%</th><th>Margem líq.</th><th>Estoque(cx)</th></tr></thead>
+      <tbody id="tb-alert"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- COMPARAÇÃO DE PREÇOS -->
+<div class="slabel">comparação de preços — mesmo calibre + qualidade + tipo</div>
+<div class="alert-box">
+  <span style="font-size:16px;flex-shrink:0">💡</span>
+  <span><strong>10 grupos</strong> com mesmo padrão têm preços diferentes. Verde = mais barato · Vermelho = mais caro do grupo. Margem exibida já é <strong>líquida</strong> (após impostos 7% + comissão 2,3%).</span>
+</div>
+<div id="cmp-container"></div>
+
+<!-- INSIGHTS -->
+<div class="slabel">insights estratégicos — visão líquida real</div>
+<div class="ig">
+  <div class="ins" style="border-left:3px solid #0F6E56"><div class="ins-t">Três Marias lidera na margem líquida</div><div class="ins-b">Após impostos e comissão, Três Marias mantém ~28–31% de margem líquida real. Custo de aquisição baixo (~R$ 5,80/kg) absorve bem as deduções. Priorizar pedidos.</div></div>
+  <div class="ins" style="border-left:3px solid #0F6E56"><div class="ins-t">Yguazu: volume compensa a margem</div><div class="ins-b">Margem líquida de ~19–27%, porém volume altíssimo (109k kg). O ganho líquido absoluto é o maior do portfólio. Manter abastecimento é prioridade estratégica.</div></div>
+  <div class="ins" style="border-left:3px solid #854F0B"><div class="ins-t">Imporfoz N9 Palha — revisar urgente</div><div class="ins-b">Com impostos + comissão (9,3%), a margem cai de 23,3% para ~14%. Custo elevado de R$ 13,41/kg. Sol del Valle oferece o mesmo padrão com custo menor.</div></div>
+  <div class="ins" style="border-left:3px solid #185FA5"><div class="ins-t">Rio Claro N6 Limpo: melhor líquida</div><div class="ins-b">Margem bruta de 44,2% → líquida de ~35%. É o produto mais eficiente do portfólio após todas as deduções. Expandir volume é ação de alto retorno imediato.</div></div>
+  <div class="ins" style="border-left:3px solid #534AB7"><div class="ins-t">Deduções fixas impactam R$ 89k</div><div class="ins-b">Impostos (7%) + comissão (2,3%) somam 9,3% da receita bruta. Sobre o estoque atual, isso representa ~R$ 89k que saem do ganho bruto de R$ 958k antes de qualquer resultado.</div></div>
+  <div class="ins" style="border-left:3px solid #A32D2D"><div class="ins-t">6 SKUs com margem líquida crítica</div><div class="ins-b">Dente Yguazu (-4,6%), Sol Valle N5 2ª (-0,4%), Rio Claro N7 Palha Branco (+1,5%) e Rio Claro N7 Branco Limpo (+8,9%) estão abaixo de 10% líquido — zona de risco real.</div></div>
+</div>
+
+</main>
+<footer>Dashboard de Alho Argentino · Margem líquida = Preço − Custo produto − Impostos (7%) − Comissão (2,3%) · Março 2026</footer>
+
+<script>
+const IMPOSTOS = 0.07;
+const COMISSAO = 0.023;
+const DEDUCOES = IMPOSTOS + COMISSAO; // 9.3%
+
+const DATA=[
+  {f:"YGUAZU",sub:"N8 (61-65)",cal:"N8",qual:"1ª",tipo:"N/A",p:12.5,c:8.807,kg:37730,cx:3773},
+  {f:"TRES MARIAS",sub:"N8 (61-65) - 1ª - Limpo",cal:"N8",qual:"1ª",tipo:"Limpo",p:12.0,c:7.699,kg:36760,cx:3676},
+  {f:"YGUAZU",sub:"N9 (66-70)",cal:"N9",qual:"1ª",tipo:"N/A",p:13.5,c:9.451,kg:34320,cx:3432},
+  {f:"YGUAZU",sub:"N10 (66-70)",cal:"N10",qual:"1ª",tipo:"N/A",p:13.0,c:9.563,kg:21760,cx:2176},
+  {f:"YGUAZU",sub:"N10 Limpo (Limp cabana)",cal:"N10",qual:"1ª",tipo:"Limpo",p:15.0,c:9.554,kg:10680,cx:1068},
+  {f:"TRES MARIAS",sub:"INDUSTRIA",cal:"N/A",qual:"N/A",tipo:"N/A",p:7.0,c:4.181,kg:9630,cx:963},
+  {f:"TRES MARIAS",sub:"N5 (46-50) - 1ª - Limpo",cal:"N5",qual:"1ª",tipo:"Limpo",p:9.0,c:5.368,kg:9100,cx:910},
+  {f:"YGUAZU",sub:"N7 (56-60)",cal:"N7",qual:"1ª",tipo:"N/A",p:11.5,c:8.299,kg:8980,cx:898},
+  {f:"IMPORFOZ",sub:"N9 (66+) - 1ª - Palha",cal:"N9",qual:"1ª",tipo:"Palha",p:17.5,c:13.415,kg:8200,cx:820},
+  {f:"TRES MARIAS",sub:"N7 (56-60) - 1ª - Limpo",cal:"N7",qual:"1ª",tipo:"Limpo",p:11.0,c:7.138,kg:7570,cx:757},
+  {f:"TRES MARIAS",sub:"N7 (56-60) 2ª Limpo",cal:"N7",qual:"2ª",tipo:"Limpo",p:9.0,c:5.708,kg:6480,cx:648},
+  {f:"TRES MARIAS",sub:"N6 (51-55) - 1ª - Limpo",cal:"N6",qual:"1ª",tipo:"Limpo",p:9.0,c:5.789,kg:6030,cx:603},
+  {f:"SOL DEL VALLE",sub:"N7 (56-60) - 2ª",cal:"N7",qual:"2ª",tipo:"N/A",p:10.5,c:6.312,kg:6010,cx:601},
+  {f:"SOL DEL VALLE",sub:"N8 (61-65) - 2ª",cal:"N8",qual:"2ª",tipo:"N/A",p:9.0,c:6.693,kg:5410,cx:541},
+  {f:"RIO CLARO",sub:"N7 (56-60) - 1ª - Palha",cal:"N7",qual:"1ª",tipo:"Palha",p:14.5,c:10.844,kg:4900,cx:490},
+  {f:"TERRANDES",sub:"N7 (56-60) - 1ª - Palha",cal:"N7",qual:"1ª",tipo:"Palha",p:15.0,c:12.169,kg:4090,cx:409},
+  {f:"BIO CUYO",sub:"N7 (56-60) - 2ª Limpo",cal:"N7",qual:"2ª",tipo:"Limpo",p:9.5,c:7.364,kg:3730,cx:373},
+  {f:"TERRANDES",sub:"N6 (51-55) - 1ª - Palha",cal:"N6",qual:"1ª",tipo:"Palha",p:14.0,c:10.063,kg:3260,cx:326},
+  {f:"TRES MARIAS",sub:"N8 (61-65) 2ª Limpo",cal:"N8",qual:"2ª",tipo:"Limpo",p:10.0,c:6.240,kg:3240,cx:324},
+  {f:"RIO CLARO",sub:"N6 (51-55) - 1ª - Limpo",cal:"N6",qual:"1ª",tipo:"Limpo",p:12.5,c:6.972,kg:3160,cx:316},
+  {f:"SOL DEL VALLE",sub:"N9 (66+) - 2ª",cal:"N9",qual:"2ª",tipo:"N/A",p:11.5,c:6.558,kg:2960,cx:296},
+  {f:"RIO CLARO",sub:"N8 (61-65) - 1ª - Palha",cal:"N8",qual:"1ª",tipo:"Palha",p:15.0,c:11.370,kg:2720,cx:272},
+  {f:"LA LUCIA",sub:"N5 - 1ª - Palha",cal:"N5",qual:"1ª",tipo:"Palha",p:14.0,c:10.134,kg:2340,cx:234},
+  {f:"YGUAZU",sub:"N11 (76+)",cal:"N11",qual:"1ª",tipo:"N/A",p:13.0,c:9.429,kg:2200,cx:220},
+  {f:"RIO CLARO",sub:"N7 - 1ª - Limpo (BRANCO)",cal:"N7",qual:"1ª",tipo:"Limpo",p:10.0,c:8.162,kg:2010,cx:201},
+  {f:"RIO CLARO",sub:"N5 (46-50) - 1ª - Limpo",cal:"N5",qual:"1ª",tipo:"Limpo",p:10.5,c:6.883,kg:1620,cx:162},
+  {f:"RIO CLARO",sub:"N7 - 1ª - Palha (BRANCO)",cal:"N7",qual:"1ª",tipo:"Palha",p:12.5,c:11.152,kg:990,cx:99},
+  {f:"RIO CLARO",sub:"N7 (56-60) - 1ª - Limpo",cal:"N7",qual:"1ª",tipo:"Limpo",p:12.5,c:8.237,kg:870,cx:87},
+  {f:"RIO CLARO",sub:"N6 - 1ª - Palha (BRANCO)",cal:"N6",qual:"1ª",tipo:"Palha",p:12.5,c:10.098,kg:850,cx:85},
+  {f:"RIO CLARO",sub:"N8 - 1ª - Limpo (BRANCO)",cal:"N8",qual:"1ª",tipo:"Limpo",p:12.5,c:8.516,kg:800,cx:80},
+  {f:"SOL DEL VALLE",sub:"N8 - 2ª - Limpo (BRANCO)",cal:"N8",qual:"2ª",tipo:"Limpo",p:10.5,c:6.144,kg:730,cx:73},
+  {f:"TRES MARIAS",sub:"N9 (66+) - 1ª - Limpo",cal:"N9",qual:"1ª",tipo:"Limpo",p:13.0,c:8.250,kg:710,cx:71},
+  {f:"TERRANDES",sub:"N8 (61-65) - 1ª - Palha",cal:"N8",qual:"1ª",tipo:"Palha",p:16.0,c:11.116,kg:670,cx:67},
+  {f:"SOL DEL VALLE",sub:"N7 - 2ª - Limpo (BRANCO)",cal:"N7",qual:"2ª",tipo:"Limpo",p:9.5,c:6.671,kg:640,cx:64},
+  {f:"RIO CLARO",sub:"N5 - 1ª - Palha (BRANCO)",cal:"N5",qual:"1ª",tipo:"Palha",p:11.5,c:9.043,kg:600,cx:60},
+  {f:"SOL DEL VALLE",sub:"N10 (71-75) 2ª",cal:"N10",qual:"2ª",tipo:"N/A",p:11.5,c:7.070,kg:250,cx:25},
+  {f:"RIO CLARO",sub:"N6 - 1ª - Palha",cal:"N6",qual:"1ª",tipo:"Palha",p:13.0,c:8.769,kg:240,cx:24},
+  {f:"RIO CLARO",sub:"N10 - 1ª - Palha",cal:"N10",qual:"1ª",tipo:"Palha",p:16.5,c:12.540,kg:200,cx:20},
+  {f:"YGUAZU",sub:"Dente",cal:"N/A",qual:"N/A",tipo:"N/A",p:10.0,c:9.530,kg:200,cx:20},
+  {f:"RIO CLARO",sub:"N5 - 1ª - Palha",cal:"N5",qual:"1ª",tipo:"Palha",p:12.0,c:8.769,kg:100,cx:10},
+  {f:"SOL DEL VALLE",sub:"N5 (46-50) - 2ª",cal:"N5",qual:"2ª",tipo:"N/A",p:9.0,c:8.203,kg:80,cx:8},
+  {f:"BIO CUYO",sub:"N8 - 2ª Semi Limpo",cal:"N8",qual:"2ª",tipo:"Limpo",p:10.5,c:7.364,kg:60,cx:6},
+  {f:"SOL DEL VALLE",sub:"N10 - 1ª Palha",cal:"N10",qual:"1ª",tipo:"Palha",p:15.5,c:12.636,kg:50,cx:5},
+  {f:"SOL DEL VALLE",sub:"N7 (56-60) - 1ª - Palha",cal:"N7",qual:"1ª",tipo:"Palha",p:14.0,c:11.046,kg:50,cx:5},
+  {f:"SOL DEL VALLE",sub:"N9 - 1ª Palha",cal:"N9",qual:"1ª",tipo:"Palha",p:14.5,c:12.106,kg:50,cx:5},
+  {f:"SOL DEL VALLE",sub:"N6 - 1ª - Palha",cal:"N6",qual:"1ª",tipo:"Palha",p:13.5,c:9.985,kg:30,cx:3},
+  {f:"SOL DEL VALLE",sub:"N9 - 2ª Limpo (BRANCO)",cal:"N9",qual:"2ª",tipo:"Limpo",p:10.5,c:6.671,kg:30,cx:3},
+  {f:"RIO CLARO",sub:"N8 - 1ª - Limpo",cal:"N8",qual:"1ª",tipo:"Limpo",p:13.5,c:8.554,kg:20,cx:2},
+];
+
+// Calcular campos derivados
+DATA.forEach(d => {
+  d.impostos   = d.p * IMPOSTOS;          // R$/kg
+  d.comissao   = d.p * COMISSAO;          // R$/kg
+  d.custoTotal = d.c + d.impostos + d.comissao;
+  d.mLiq       = (d.p - d.custoTotal) / d.p;
+  d.ganhoLiqKg = d.p - d.custoTotal;
+  d.ganhoLiq   = d.ganhoLiqKg * d.kg;
+  d.receita    = d.p * d.kg;
+});
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+const totalReceita   = DATA.reduce((s,d)=>s+d.receita,0);
+const totalImpostos  = DATA.reduce((s,d)=>s+d.impostos*d.kg,0);
+const totalComissao  = DATA.reduce((s,d)=>s+d.comissao*d.kg,0);
+const totalGanhoLiq  = DATA.reduce((s,d)=>s+d.ganhoLiq,0);
+const totalKg        = DATA.reduce((s,d)=>s+d.kg,0);
+const margemLiqMedia = totalGanhoLiq / totalReceita;
+
+document.getElementById('kpiImpostos').textContent  = '−R$ '+Math.round(totalImpostos/1000)+'k';
+document.getElementById('kpiComissao').textContent  = '−R$ '+Math.round(totalComissao/1000)+'k';
+document.getElementById('kpiLiquido').textContent   = 'R$ '+Math.round(totalGanhoLiq/1000)+'k';
+document.getElementById('kpiMargemLiq').textContent = (margemLiqMedia*100).toFixed(1)+'%';
+document.getElementById('margemLiquidaMedia').textContent = (margemLiqMedia*100).toFixed(1)+'%';
+
+// ── WATERFALL ────────────────────────────────────────────────────────────────
+const pMed     = totalReceita / totalKg;
+const cMed     = DATA.reduce((s,d)=>s+d.c*d.kg,0) / totalKg;
+const impMed   = pMed * IMPOSTOS;
+const comMed   = pMed * COMISSAO;
+const liqMed   = pMed - cMed - impMed - comMed;
+
+const wfData = [
+  {label:'Preço de venda',    val: pMed,   pct: 100,                        color:'#378ADD', cumul: pMed},
+  {label:'(−) Custo produto', val:-cMed,   pct:-(cMed/pMed*100),           color:'#D85A30', cumul: pMed-cMed},
+  {label:'(−) Impostos 7%',  val:-impMed, pct:-(IMPOSTOS*100),             color:'#A32D2D', cumul: pMed-cMed-impMed},
+  {label:'(−) Comissão 2,3%',val:-comMed, pct:-(COMISSAO*100),            color:'#BA7517', cumul: pMed-cMed-impMed-comMed},
+  {label:'= Margem líquida',  val: liqMed, pct: liqMed/pMed*100,           color:'#1D9E75', cumul: liqMed},
+];
+
+const wfEl = document.getElementById('waterfallEl');
+wfData.forEach(row => {
+  const isResult = row.label.startsWith('=');
+  const barW = Math.abs(row.pct / 100) * 100;
+  const sign = row.val >= 0 ? '+' : '';
+  wfEl.innerHTML += `
+    <div class="wf-row">
+      <span class="wf-label">${row.label}</span>
+      <div class="wf-bar-wrap">
+        <div class="wf-bar" style="width:${barW}%;background:${row.color};color:#fff">
+          ${sign}R$ ${Math.abs(row.val).toFixed(2)}/kg
+        </div>
+      </div>
+      <span class="wf-val" style="color:${row.val>=0?'var(--green)':'var(--red)'}">${sign}${row.pct.toFixed(1)}%</span>
+    </div>`;
+});
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+const fCores=['#378ADD','#1D9E75','#D85A30','#D4537E','#639922','#BA7517','#7F77DD','#E07B39'];
+const maxGLiq = Math.max(...DATA.map(d=>d.ganhoLiq));
+
+function bdg(m){
+  const p=(m*100).toFixed(1)+'%';
+  if(m>=.25) return `<span class="badge bg">${p}</span>`;
+  if(m>=.10) return `<span class="badge ba">${p}</span>`;
+  return `<span class="badge br">${p}</span>`;
+}
+
+function renderRow(d, showBar=true, showAlert=false){
+  const bw = Math.round(d.ganhoLiq/maxGLiq*100);
+  const bc = d.mLiq>=.25?'#1D9E75':d.mLiq>=.10?'#BA7517':'#D85A30';
+  return `<tr>
+    <td style="font-weight:500;white-space:nowrap">${d.f}</td>
+    <td style="color:var(--text2);max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.sub}</td>
+    <td style="font-weight:600">R$ ${d.p.toFixed(2)}</td>
+    <td style="color:var(--text2)">R$ ${d.c.toFixed(2)}</td>
+    <td style="color:var(--red-txt)">−R$ ${d.impostos.toFixed(2)}</td>
+    <td style="color:var(--amber-txt)">−R$ ${d.comissao.toFixed(2)}</td>
+    <td>${bdg(d.mLiq)}</td>
+    <td>${d.cx.toLocaleString('pt-BR')}</td>
+    ${!showAlert?`<td style="font-weight:600">R$ ${Math.round(d.ganhoLiq).toLocaleString('pt-BR')}</td>`:''}
+    ${showBar?`<td><div class="bar-o"><div class="bar-i" style="width:${bw}%;background:${bc}"></div></div></td>`:''}
+  </tr>`;
+}
+
+document.getElementById('tb-top').innerHTML=[...DATA].sort((a,b)=>b.ganhoLiq-a.ganhoLiq).slice(0,10).map(d=>renderRow(d)).join('');
+document.getElementById('tb-marg').innerHTML=[...DATA].sort((a,b)=>b.mLiq-a.mLiq).slice(0,10).map(d=>renderRow(d)).join('');
+document.getElementById('tb-alert').innerHTML=[...DATA].filter(d=>d.mLiq<.10).sort((a,b)=>a.mLiq-b.mLiq).map(d=>renderRow(d,false,true)).join('');
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+let activeTab='top';
+function showTab(n,btn){
+  document.getElementById('tab-'+activeTab).classList.add('hidden');
+  document.getElementById('tab-'+n).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on'); activeTab=n;
+}
+
+// ── FORNECEDOR CHARTS ────────────────────────────────────────────────────────
+const fG={},fM={},fN={};
+DATA.forEach(d=>{fG[d.f]=(fG[d.f]||0)+d.ganhoLiq;fM[d.f]=(fM[d.f]||0)+d.mLiq;fN[d.f]=(fN[d.f]||0)+1;});
+const fK=Object.keys(fG).sort((a,b)=>fG[b]-fG[a]);
+const fC=fK.map((_,i)=>fCores[i%fCores.length]);
+
+new Chart(document.getElementById('cF'),{type:'bar',data:{labels:fK,datasets:[{data:fK.map(f=>Math.round(fG[f])),backgroundColor:fC,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' R$ '+c.raw.toLocaleString('pt-BR')}}},scales:{x:{grid:{color:'rgba(128,128,128,0.08)'},ticks:{font:{size:11},callback:v=>'R$ '+Math.round(v/1000)+'k'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+document.getElementById('legF').innerHTML=fK.map((f,i)=>`<span><span class="ldot" style="background:${fC[i]}"></span>${f}</span>`).join('');
+
+const fMA=fK.map(f=>Math.round(fM[f]/fN[f]*1000)/10);
+new Chart(document.getElementById('cM'),{type:'bar',data:{labels:fK,datasets:[{data:fMA,backgroundColor:fMA.map(m=>m>=25?'#1D9E75':m>=10?'#BA7517':'#D85A30'),borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw.toFixed(1)+'% líq.'}}},scales:{x:{grid:{color:'rgba(128,128,128,0.08)'},ticks:{font:{size:11},callback:v=>v+'%'},max:40},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+
+// ── CALIBRE CHARTS ────────────────────────────────────────────────────────────
+const cV={},cP={},cCT={},cLiq={},cN2={};
+DATA.forEach(d=>{
+  if(d.cal==='N/A')return;
+  cV[d.cal]=(cV[d.cal]||0)+d.kg;
+  cP[d.cal]=(cP[d.cal]||0)+d.p;
+  cCT[d.cal]=(cCT[d.cal]||0)+d.custoTotal;
+  cLiq[d.cal]=(cLiq[d.cal]||0)+d.ganhoLiqKg;
+  cN2[d.cal]=(cN2[d.cal]||0)+1;
+});
+const cK=Object.keys(cV).sort((a,b)=>parseInt(a.slice(1))-parseInt(b.slice(1)));
+
+new Chart(document.getElementById('cCal'),{type:'bar',data:{labels:cK,datasets:[{data:cK.map(c=>cV[c]),backgroundColor:'#378ADD',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.raw.toLocaleString('pt-BR')+' kg'}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},autoSkip:false,maxRotation:0}},y:{grid:{color:'rgba(128,128,128,0.08)'},ticks:{font:{size:11},callback:v=>Math.round(v/1000)+'k'}}}}});
+
+new Chart(document.getElementById('cPC'),{type:'bar',data:{labels:cK,datasets:[
+  {label:'Preço/kg',     data:cK.map(c=>+(cP[c]/cN2[c]).toFixed(2)),  backgroundColor:'#378ADD',borderRadius:4,borderSkipped:false},
+  {label:'Custo total/kg',data:cK.map(c=>+(cCT[c]/cN2[c]).toFixed(2)),backgroundColor:'#D85A30',borderRadius:4,borderSkipped:false},
+  {label:'Margem líq/kg',data:cK.map(c=>+(cLiq[c]/cN2[c]).toFixed(2)),backgroundColor:'#1D9E75',borderRadius:4,borderSkipped:false},
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' R$ '+c.raw.toFixed(2)+'/kg'}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},autoSkip:false,maxRotation:0}},y:{grid:{color:'rgba(128,128,128,0.08)'},ticks:{font:{size:11},callback:v=>'R$ '+v}}}}});
+
+// ── COMPARAÇÃO ────────────────────────────────────────────────────────────────
+const GROUPS=[
+  {cal:'N5 (46-50)',qual:'1ª',tipo:'Limpo',items:[{f:'TRES MARIAS',sub:'N5 - 1ª Limpo',p:9.0,c:5.37,kg:9100},{f:'RIO CLARO',sub:'N5 - 1ª Limpo',p:10.5,c:6.88,kg:1620}]},
+  {cal:'N5 (46-50)',qual:'1ª',tipo:'Palha',items:[{f:'RIO CLARO (Branco)',sub:'N5 - 1ª Palha (BRANCO)',p:11.5,c:9.04,kg:600},{f:'RIO CLARO',sub:'N5 - 1ª Palha',p:12.0,c:8.77,kg:100}]},
+  {cal:'N6 (51-55)',qual:'1ª',tipo:'Limpo',items:[{f:'TRES MARIAS',sub:'N6 - 1ª Limpo',p:9.0,c:5.79,kg:6030},{f:'RIO CLARO',sub:'N6 - 1ª Limpo',p:12.5,c:6.97,kg:3160}]},
+  {cal:'N6 (51-55)',qual:'1ª',tipo:'Palha',items:[{f:'RIO CLARO (Branco)',sub:'N6 - 1ª Palha (BRANCO)',p:12.5,c:10.10,kg:850},{f:'RIO CLARO',sub:'N6 - 1ª Palha',p:13.0,c:8.77,kg:240},{f:'SOL DEL VALLE',sub:'N6 - 1ª Palha',p:13.5,c:9.99,kg:30},{f:'TERRANDES',sub:'N6 - 1ª Palha',p:14.0,c:10.06,kg:3260}]},
+  {cal:'N7 (56-60)',qual:'1ª',tipo:'Limpo',items:[{f:'RIO CLARO (Branco)',sub:'N7 - 1ª Limpo (BRANCO)',p:10.0,c:8.16,kg:2010},{f:'TRES MARIAS',sub:'N7 - 1ª Limpo',p:11.0,c:7.14,kg:7570},{f:'RIO CLARO',sub:'N7 - 1ª Limpo',p:12.5,c:8.24,kg:870}]},
+  {cal:'N7 (56-60)',qual:'1ª',tipo:'Palha',items:[{f:'RIO CLARO (Branco)',sub:'N7 - 1ª Palha (BRANCO)',p:12.5,c:11.15,kg:990},{f:'SOL DEL VALLE',sub:'N7 - 1ª Palha',p:14.0,c:11.05,kg:50},{f:'RIO CLARO',sub:'N7 - 1ª Palha',p:14.5,c:10.84,kg:4900},{f:'TERRANDES',sub:'N7 - 1ª Palha',p:15.0,c:12.17,kg:4090}]},
+  {cal:'N7 (56-60)',qual:'2ª',tipo:'Limpo',items:[{f:'TRES MARIAS',sub:'N7 2ª Limpo',p:9.0,c:5.71,kg:6480},{f:'BIO CUYO',sub:'N7 2ª Limpo',p:9.5,c:7.36,kg:3730},{f:'SOL DEL VALLE (Branco)',sub:'N7 2ª Limpo (BRANCO)',p:9.5,c:6.67,kg:640}]},
+  {cal:'N8 (61-65)',qual:'1ª',tipo:'Limpo',items:[{f:'TRES MARIAS',sub:'N8 - 1ª Limpo',p:12.0,c:7.70,kg:36760},{f:'RIO CLARO (Branco)',sub:'N8 - 1ª Limpo (BRANCO)',p:12.5,c:8.52,kg:800},{f:'RIO CLARO',sub:'N8 - 1ª Limpo',p:13.5,c:8.55,kg:20}]},
+  {cal:'N8 (61-65)',qual:'1ª',tipo:'Palha',items:[{f:'RIO CLARO',sub:'N8 - 1ª Palha',p:15.0,c:11.37,kg:2720},{f:'TERRANDES',sub:'N8 - 1ª Palha',p:16.0,c:11.12,kg:670}]},
+  {cal:'N9 (66+)',qual:'1ª',tipo:'Palha',items:[{f:'SOL DEL VALLE',sub:'N9 - 1ª Palha',p:14.5,c:12.11,kg:50},{f:'IMPORFOZ',sub:'N9 - 1ª Palha',p:17.5,c:13.41,kg:8200}]},
+];
+
+// calcular margem líquida nos grupos de comparação
+GROUPS.forEach(grp=>{grp.items.forEach(it=>{
+  it.mLiq = (it.p - it.c - it.p*IMPOSTOS - it.p*COMISSAO) / it.p;
+})});
+
+const cmpEl=document.getElementById('cmp-container');
+GROUPS.forEach((grp,gi)=>{
+  const maxP=Math.max(...grp.items.map(i=>i.p));
+  const minP=Math.min(...grp.items.map(i=>i.p));
+  const spread=(maxP-minP).toFixed(2);
+  const sc=parseFloat(spread)>=3?'high':parseFloat(spread)>=1.5?'mid':'low';
+  const totalKg=grp.items.reduce((s,i)=>s+i.kg,0);
+  const div=document.createElement('div');
+  div.className='cmp-group';
+  div.innerHTML=`
+    <div class="cmp-header" onclick="toggleCmp(${gi})">
+      <span class="cmp-cal">${grp.cal} · ${grp.qual} · ${grp.tipo}</span>
+      <span class="cmp-meta">${grp.items.length} fornecedores · ${(totalKg/1000).toFixed(1)}t</span>
+      <span class="cmp-spread ${sc}">Δ R$ ${spread}/kg</span>
+      <span class="chev" id="chev-${gi}">▶</span>
+    </div>
+    <div id="cmpb-${gi}">
+      ${grp.items.map(it=>{
+        const bw=Math.round((it.p/maxP)*100);
+        const col=it.p===maxP?'#D85A30':it.p===minP?'#1D9E75':'#BA7517';
+        const tcol=it.p===maxP?'var(--red)':it.p===minP?'var(--green)':'var(--text)';
+        const impostos=(it.p*IMPOSTOS).toFixed(2);
+        const comissao=(it.p*COMISSAO).toFixed(2);
+        return `<div class="cmp-row">
+          <span class="cmp-f">${it.f}</span>
+          <span class="cmp-s">${it.sub}</span>
+          <div class="pbar-w"><div class="pbar" style="width:${bw}%;background:${col}"></div></div>
+          <span class="cmp-p" style="color:${tcol}">R$ ${it.p.toFixed(2)}/kg</span>
+          <span class="cmp-c" style="font-size:10px;color:var(--text2)">prod R$ ${it.c.toFixed(2)} · imp −${impostos} · com −${comissao}</span>
+          <span class="cmp-m">${bdg(it.mLiq)}</span>
+          <span class="cmp-kg">${it.kg.toLocaleString('pt-BR')} kg</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  cmpEl.appendChild(div);
+  document.getElementById('cmpb-'+gi).style.display='block';
+  document.getElementById('chev-'+gi).style.transform='rotate(90deg)';
+});
+
+function toggleCmp(i){
+  const b=document.getElementById('cmpb-'+i);
+  const ch=document.getElementById('chev-'+i);
+  const open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  ch.style.transform=open?'':'rotate(90deg)';
+}
+</script>
+</body>
+</html>
